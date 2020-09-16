@@ -8,7 +8,7 @@
 <input class="inputArea" model:value="{{deviceName}}" placeholder="请输入姓名" maxlength="4"></input>
 </view> -->
 <view class="btnArea">
-	<button class="functionBtn" bindtap="startAdvertising">开始广播</button>
+	<button class="functionBtn" bindtap="openBluetoothAdapter">开始广播</button>
 	<button class="functionBtn" bindtap="stopAdvertising">停止广播</button>
 </view>
 <text class="tip">

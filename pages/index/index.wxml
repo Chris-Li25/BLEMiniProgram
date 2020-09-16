@@ -4,5 +4,5 @@
 <!-- <button class="turnBtn" bindtap="goToServer">BLE服务端外设功能页面</button> -->
 <!-- <button class="turnBtn" bindtap="goToClient">BLE客户端设备功能页面</button> -->
 <!-- <button class="turnBtn" bindtap="goToiBeacon">IBeacon功能页面</button> -->
-<button class="turnBtn" bindtap="goToIosTest">IosBlETest</button>
+<!-- <button class="turnBtn" bindtap="goToIosTest">IosBlETest</button> -->
 

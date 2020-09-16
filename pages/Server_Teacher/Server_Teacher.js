@@ -13,13 +13,12 @@ Page({
     server: null,
 
   },
-  startAdvertising: function (e) {
+  openBluetoothAdapter: function (e) {
     var that = this;
     wx.openBluetoothAdapter({
       mode: "peripheral",
       success: function (res) {
         console.log("初始化蓝牙模块")
-
         if (that.data.server) {
           wx.showToast({
             title: '已创建服务并广播，请勿重复操作',
@@ -57,22 +56,22 @@ Page({
       },
     });
   },
-  getBluetoothAdapterState() {
-    var that = this;
-    that.toastTitle = "检查蓝牙状态";
+  // getBluetoothAdapterState() {
+  //   var that = this;
+  //   that.toastTitle = "检查蓝牙状态";
 
-    wx.getBluetoothAdapterState({
-      success: function (res) {
-        console.log(res.state)
-        console.log(res.errMsg)
-        that.CreateServer();
-      },
-      fail(err) {
-        console.log(err.state)
-        console.log(err);
-      },
-    });
-  },
+  //   wx.getBluetoothAdapterState({
+  //     success: function (res) {
+  //       console.log(res.state)
+  //       console.log(res.errMsg)
+  //       that.CreateServer();
+  //     },
+  //     fail(err) {
+  //       console.log(err.state)
+  //       console.log(err);
+  //     },
+  //   });
+  // },
 
   CreateServer() {
     var that = this;
@@ -80,140 +79,147 @@ Page({
       success: (result) => {
         that.data.server = result.server
         console.log(result.errMsg);
-        console.log("创建服务成功");
-        result.server.addService({
-          service: {
-            uuid: "0000aaa0-0000-1000-8000-00805f9b34fb",
-            characteristics: [{
-              uuid: "0000aaa1-0000-1000-8000-00805f9b34fb",
-              properties: {
-                write: true,
-                read: true,
-                notify: true
-              },
-              permission: {
-                readable: true,
-                writeable: true
-              },
-              value: that.string2buffer("201711621313"),
-              // descriptors: [{
-              //   uuid: "00002902-0000-1000-8000-00805f9b34fb",
-              //   permission: {
-              //     write: true,
-              //     read: true
-              //   }
-              // }]
-            }]
-          },
-          success(e) {
-            console.log(e.errMsg)
-            console.log("添加Service成功")
-            result.server.onCharacteristicWriteRequest(function callback(res) {
-              if (!that.data.devicesInfo.includes(that.buf2string(res.value))) {
-                that.data.devicesNumber++;
-                that.data.devicesInfo.push(that.buf2string(res.value));
-                that.setData({
-                  devicesNumber: that.data.devicesNumber,
-                  devicesInfo: that.data.devicesInfo
-                })
-              }
-    
-              result.server.writeCharacteristicValue({
-                serviceId: res.serviceId,
-                characteristicId: res.characteristicId,
-                value: res.value,
-                needNotify: true,
-                callbackId: res.callbackId
-              })
-            })
-            result.server.onCharacteristicReadRequest(function callback(res) {
-              result.server.writeCharacteristicValue({
-                serviceId: res.serviceId,
-                characteristicId: res.characteristicId,
-                value: that.string2buffer("2020"),
-                needNotify: true,
-                callbackId: res.callbackId
-              })
-            })
-            var promise = result.server.startAdvertising({
-              advertiseRequest: {
-                deviceName: that.data.deviceName,
-                serviceUuids: ["0000aaaa-2017-1162-1313-" + that.data.UUID]
-              }
-            });
-            promise.then(
-              (data) => {
-                console.log("resolved", data),
-                  wx.showToast({
-                    title: '开启广播成功',
-                    icon: 'none'
-                  }),
-                  that.setData({
-                    tip:"广播已开启"
-                  })
-              },
-              (errMsg) => {
-                result.server.close({
-                  success(e) {
-                    console.log("关闭服务")
-                  }
-                })
-                that.setData({
-                  server: null
-                })
-                console.log("rejected")
-                console.log(errMsg)
-                if (errMsg.errCode == 10000) {
-                  wx.showToast({
-                    title: '用户设备连接了其他BLE设备，请重启蓝牙后重试',
-                    icon: 'none'
-                  })
-                }
-              }
-            )
-            console.log(promise)
-
-          },
-          fail(e) {
-            wx.hideLoading({
-              success: (res) => {
-                wx.showToast({
-                  title: '开启广播失败，请重试',
-                  icon: 'none'
-                })
-              },
-            })
-            console.log(e.errCode)
-            console.log(e.errMsg)
-            console.log("添加Service失败")
-            result.server.close({
-              success(e) {
-                console.log("添加Service失败 关闭服务成功")
-              },
-              fail(e) {
-                console.log("添加Service失败 关闭服务失败")
-              }
-            })
-            that.setData({
-              server: null
-            })
-            return
-          }
-        })
-        
+        console.log("创建服务成功");   
+        setTimeout(that.addService.bind(that),2000);
       },
       fail(e) {
         console.log(e.errMsg+e.errCode)
         wx.hideLoading({
           success: (res) => {
             wx.showToast({
-              title: '开启失败,设备不支持',
+              title: '开启失败,设备不支持或未知错误',
               icon: 'none'
             })
           },
         })
       }
     })
+  },
+
+  addService(){
+    var that = this;
+    that.data.server.addService({
+      service: {
+        uuid: "0000aaa0-0000-1000-8000-00805f9b34fb",
+        characteristics: [{
+          uuid: "0000aaa1-0000-1000-8000-00805f9b34fb",
+          properties: {
+            write: true,
+            read: true,
+            notify: true
+          },
+          permission: {
+            readable: true,
+            writeable: true
+          },
+          value: that.string2buffer("201711621313"),
+          // descriptors: [{
+          //   uuid: "00002902-0000-1000-8000-00805f9b34fb",
+          //   permission: {
+          //     write: true,
+          //     read: true
+          //   }
+          // }]
+        }]
+      },
+      success(e) {
+        console.log(e.errMsg)
+        console.log("添加Service成功")
+        that.data.server.onCharacteristicWriteRequest(function callback(res) {
+          if (!that.data.devicesInfo.includes(that.buf2string(res.value))) {
+            that.data.devicesNumber++;
+            that.data.devicesInfo.push(that.buf2string(res.value));
+            that.setData({
+              devicesNumber: that.data.devicesNumber,
+              devicesInfo: that.data.devicesInfo
+            })
+          }
+
+          that.data.server.writeCharacteristicValue({
+            serviceId: res.serviceId,
+            characteristicId: res.characteristicId,
+            value: res.value,
+            needNotify: true,
+            callbackId: res.callbackId
+          })
+        })
+        that.data.server.onCharacteristicReadRequest(function callback(res) {
+          that.data.server.writeCharacteristicValue({
+            serviceId: res.serviceId,
+            characteristicId: res.characteristicId,
+            value: that.string2buffer("2020"),
+            needNotify: true,
+            callbackId: res.callbackId
+          })
+        })
+        that.startAdvertising();
+      },
+      fail(e) {
+        wx.hideLoading({
+          success: (res) => {
+            wx.showToast({
+              title: '开启广播失败，请重试',
+              icon: 'none'
+            })
+          },
+        })
+        console.log(e.errCode)
+        console.log(e.errMsg)
+        console.log("添加Service失败")
+        that.data.server.close({
+          success(e) {
+            console.log("添加Service失败 关闭服务成功")
+          },
+          fail(e) {
+            console.log("添加Service失败 关闭服务失败")
+          }
+        })
+        that.setData({
+          server: null
+        })
+        return
+      }
+    })
+  },
+  startAdvertising(){
+    var that = this;
+    var promise = that.data.server.startAdvertising({
+      advertiseRequest: {
+        deviceName: that.data.deviceName,
+        serviceUuids: ["0000aaaa-2017-1162-1313-" + that.data.UUID]
+      }
+    });
+    promise.then(
+      (data) => {
+        console.log("resolved", data),
+          wx.showToast({
+            title: '开启广播成功',
+            icon: 'none'
+          }),
+          that.setData({
+            tip:"广播已开启"
+          })
+      },
+      (errMsg) => {
+        that.data.server.close({
+          success(e) {
+            console.log("关闭服务")
+          }
+        })
+        that.setData({
+          server: null
+        })
+        console.log("rejected")
+        console.log(errMsg)
+        if (errMsg.errCode == 10000) {
+          wx.showToast({
+            title: '用户设备连接了其他BLE设备，请重启蓝牙后重试',
+            icon: 'none'
+          })
+        }
+      }
+    )
+    console.log(promise)
   },
   stopAdvertising() {
     var that = this;

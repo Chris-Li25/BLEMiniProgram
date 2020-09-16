@@ -47,11 +47,11 @@ Page({
   //     }
   //   })
   // },
-  goToIosTest:function(e){
-    wx.navigateTo({
-      url: '../IosTest/IosTest',
-    })
-  }
+  // goToIosTest:function(e){
+  //   wx.navigateTo({
+  //     url: '../IosTest/IosTest',
+  //   })
+  // }
 
   
 })

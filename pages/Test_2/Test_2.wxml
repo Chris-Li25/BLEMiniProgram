@@ -1,0 +1,3 @@
+<!--pages/Test_2/Test_2.wxml-->
+<button class="turnBtn" bindtap="goToClient_Student">学生 客户端</button>
+<button class="turnBtn" bindtap="goToServer_Teacher">教师 服务端</button>

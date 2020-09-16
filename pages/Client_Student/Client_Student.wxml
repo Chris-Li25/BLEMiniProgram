@@ -1,0 +1,25 @@
+<!--pages/testBluetooth/testBluetooth.wxml-->
+<view class="functionBtnArea">
+<button class="functionBtn" bindtap="openBluetoothAdapter">开始扫描</button>
+<button class="functionBtn" bindtap="stopBluetoothDevicesDiscovery">停止扫描</button>
+</view>
+<view class="inputView">
+	<text class="InputText">发送数据：</text><input class="inputArea" maxlength="12" placeholder="请输入十二位学号" type="number" model:value="{{writeValue}}"></input>
+</view>
+<!-- 写入数据的输入 -->
+<!-- <button bindtap="closeBluetoothAdapter">结束流程</button> -->
+<view class="devices_summary">已发现的教师设备（点击教师设备发送数据签到）：</view>
+<scroll-view class="device_list" scroll-y scroll-with-animation>
+	<view wx:for="{{devices}}" wx:key="index" data-deviceid="{{item.deviceId}}" data-name="{{item.name || item.localName}}" class="device_item" hover-class="device_item_hover">
+		<view data-deviceid="{{item.deviceId}}" data-name="{{item.name || item.localName}}" bindtap='createBLEConnection'>
+			<view style="font-size: 16px; color: #333;">{{item.name}}</view>
+			<view style="font-size: 10px">
+				信号强度: {{item.RSSI}}
+				<!-- dBm ({{utils.max(0, item.RSSI + 100)}}%) -->
+			</view>
+			<!-- <view style="font-size: 10px">设备ID: {{item.deviceId}}</view> -->
+			<!-- <view style="font-size: 10px">ServiceUuid: {{item.advertisServiceUUIDs[0]}}</view> -->
+		</view>
+	</view>
+
+</scroll-view>

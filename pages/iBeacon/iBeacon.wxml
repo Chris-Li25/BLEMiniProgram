@@ -1,0 +1,8 @@
+<!--pages/index/index.wxml-->
+<button bindtap="searchIBeacon">搜索IBeacon</button>
+<button bindtap="GetBeacon">获取IBeacon</button>
+<view>{{uuid}}</view>
+<view>{{major}}</view>
+<view>{{minor}}</view>
+<view>{{rssi}}</view>
+<view>{{accuracy}}</view>

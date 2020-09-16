@@ -1,2 +1,8 @@
 <!--pages/index/index.wxml-->
-<button bindtap="GetBeacon">IBeacon</button>
+<button class="turnBtn" bindtap="goToTest_1">测试一</button>
+<button class="turnBtn" bindtap="goToTest_2">测试二</button>
+<!-- <button class="turnBtn" bindtap="goToServer">BLE服务端外设功能页面</button> -->
+<!-- <button class="turnBtn" bindtap="goToClient">BLE客户端设备功能页面</button> -->
+<!-- <button class="turnBtn" bindtap="goToiBeacon">IBeacon功能页面</button> -->
+<button class="turnBtn" bindtap="goToIosTest">IosBlETest</button>
+

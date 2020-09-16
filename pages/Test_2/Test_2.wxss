@@ -1,4 +1,4 @@
-/* pages/index/index.wxss */
+/* pages/Test_2/Test_2.wxss */
 .turnBtn{
   width: fit-content !important;
   margin: 10rpx;

@@ -1,0 +1,2 @@
+<!--pages/IosTest.wxml-->
+<button bindtap="openBluetoothAdapter">开启广播</button>

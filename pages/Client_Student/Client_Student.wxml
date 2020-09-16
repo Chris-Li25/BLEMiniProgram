@@ -1,7 +1,7 @@
 <!--pages/testBluetooth/testBluetooth.wxml-->
 <view class="functionBtnArea">
-<button class="functionBtn" bindtap="openBluetoothAdapter">开始扫描</button>
-<button class="functionBtn" bindtap="stopBluetoothDevicesDiscovery">停止扫描</button>
+<button class="functionBtn" bindtap="openBluetoothAdapter" disabled="{{disabled}}">{{searchText}}</button>
+<button class="functionBtn" bindtap="stopBluetoothDevicesDiscovery" >停止扫描</button>
 </view>
 <view class="inputView">
 	<text class="InputText">发送数据：</text><input class="inputArea" maxlength="12" placeholder="请输入十二位学号" type="number" model:value="{{writeValue}}"></input>
@@ -17,7 +17,7 @@
 				信号强度: {{item.RSSI}}
 				<!-- dBm ({{utils.max(0, item.RSSI + 100)}}%) -->
 			</view>
-			<!-- <view style="font-size: 10px">设备ID: {{item.deviceId}}</view> -->
+			<view style="font-size: 10px">设备ID: {{item.deviceId}}</view>
 			<!-- <view style="font-size: 10px">ServiceUuid: {{item.advertisServiceUUIDs[0]}}</view> -->
 		</view>
 	</view>

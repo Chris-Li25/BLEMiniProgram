@@ -1,6 +1,8 @@
 // pages/testBluetooth/testBluetooth.js
 Page({
   data: {
+    searchText:"开始扫描",
+    disabled:false,
     UUID:"000020200913",
     devices: [],
     deviceID:"",
@@ -24,16 +26,18 @@ Page({
     //   }
     // })
     this.setData({
+      disabled:false,
+      searchText:'开始扫描',
       devices:[]
     })
   },
   onHide:function(){
     this.stopBluetoothDevicesDiscovery();
-    wx.closeBluetoothAdapter({
-      success: (res) => {
-        console.log("关闭蓝牙模块")
-      },
-    })
+    // wx.closeBluetoothAdapter({
+    //   success: (res) => {
+    //     console.log("关闭蓝牙模块")
+    //   },
+    // })
     // wx.closeBLEConnection({
     //   deviceId: this.data.deviceID,
     //   success(e){
@@ -44,20 +48,35 @@ Page({
     //   }
     // })
     this.setData({
-      devices:[]
+      disabled:false,
+      searchText:'开始扫描'
     })
   },
 
   openBluetoothAdapter() {
     var that = this;
+    try {
+      const res = wx.getSystemInfoSync()
+      console.log(res.locationEnabled)
+      that.data.location = res.locationEnabled
+    } catch (e) {
+      // Do something when catch error
+    }
+    if(!that.data.location){
+      wx.showToast({
+        title: '需开启定位服务才能搜索到设备',
+        icon:'none'
+      })
+      return
+    }
     if (wx.openBluetoothAdapter) {
       wx.openBluetoothAdapter({
         success: function (res) {
           wx.showToast({
-            title: "正在获取蓝牙列表",
+            title: "正在开启扫描",
             icon: "loading",
           });
-          that.getBluetoothAdapterState();
+          that.startBluetoothDevicesDiscovery();
         },
         fail: function (err) {
           wx.showModal({
@@ -70,19 +89,19 @@ Page({
       });
     } else {}
   },
-  getBluetoothAdapterState() {
-    var that = this;
-    that.toastTitle = "检查蓝牙状态";
+  // getBluetoothAdapterState() {
+  //   var that = this;
+  //   that.toastTitle = "检查蓝牙状态";
 
-    wx.getBluetoothAdapterState({
-      success: function (res) {
-        that.startBluetoothDevicesDiscovery();
-      },
-      fail(err) {
-        console.log(err);
-      },
-    });
-  },
+  //   wx.getBluetoothAdapterState({
+  //     success: function (res) {
+  //       that.startBluetoothDevicesDiscovery();
+  //     },
+  //     fail(err) {
+  //       console.log(err);
+  //     },
+  //   });
+  // },
   startBluetoothDevicesDiscovery() {
     console.log("获取蓝牙设备列表");
     var that = this;
@@ -90,60 +109,95 @@ Page({
     wx.startBluetoothDevicesDiscovery({
       allowDuplicatesKey:false,
       success: function (res) {
-        that.getBluetoothDevices();
+        that.setData({
+          disabled:true,
+          searchText:"扫描中"
+        })
+        that.onBluetoothDeviceFound();
       },
       fail(err) {
         console.log(err);
       },
     });
   },
-  getBluetoothDevices() {
+  onBluetoothDeviceFound(){
     var _this = this;
-    wx.getBluetoothDevices({
-      services: [],
-      allowDuplicatesKey: false,
-      interval: 0,
-      success: function (res) {
-        wx.hideToast();
-        if(res.devices){
-          if (res.devices.length > 0) {
-            console.log(res.devices)
-            var devices=[];
-            for(var i = 0; i<res.devices.length; i++ ){
-              if(res.devices[i].advertisServiceUUIDs){
-                if(res.devices[i].advertisServiceUUIDs.length>0){
-                  console.log(res.devices[i].advertisServiceUUIDs[0]);
-                  if(res.devices[i].advertisServiceUUIDs[0].includes(_this.data.UUID)){
-                    devices.push(res.devices[i])
-                  }
+    var devices=[];
+    wx.onBluetoothDeviceFound((result) => {
+      if(result.devices){
+        if (result.devices.length > 0) {
+          console.log("扫描到的全部设备")
+          console.log(result.devices)
+          for(var i = 0; i<result.devices.length; i++ ){
+            if(result.devices[i].advertisServiceUUIDs){
+              if(result.devices[i].advertisServiceUUIDs.length>0){
+                if(result.devices[i].advertisServiceUUIDs[0].includes(_this.data.UUID)){
+                  devices.push(result.devices[i])
                 }
               }
             }
-            console.log(devices);
-            _this.setData({
-              devices: devices
-            });
-          } else {}
-        }
-       
-      },
-      fail(res) {
-        console.log(res, "获取蓝牙设备列表失败=====");
-      },
-    });
+          }
+          console.log("要显示的设备");
+          console.log(devices);
+          _this.setData({
+            devices: devices
+          });
+        } else {}
+      }
+    })
+
   },
+  // getBluetoothDevices() {
+  //   var _this = this;
+  //   wx.getBluetoothDevices({
+  //     services: [],
+  //     allowDuplicatesKey: false,
+  //     interval: 0,
+  //     success: function (res) {
+  //       if(res.devices){
+  //         if (res.devices.length > 0) {
+  //           console.log(res.devices)
+  //           var devices=[];
+  //           for(var i = 0; i<res.devices.length; i++ ){
+  //             if(res.devices[i].advertisServiceUUIDs){
+  //               if(res.devices[i].advertisServiceUUIDs.length>0){
+  //                 console.log(res.devices[i].advertisServiceUUIDs[0]);
+  //                 if(res.devices[i].advertisServiceUUIDs[0].includes(_this.data.UUID)){
+  //                   devices.push(res.devices[i])
+  //                 }
+  //               }
+  //             }
+  //           }
+  //           console.log(devices);
+  //           _this.setData({
+  //             devices: devices
+  //           });
+  //         } else {}
+  //       }
+       
+  //     },
+  //     fail(res) {
+  //       console.log(res, "获取蓝牙设备列表失败=====");
+  //     },
+  //   });
+  // },
   stopBluetoothDevicesDiscovery() {
     console.log("停止扫描");
     wx.stopBluetoothDevicesDiscovery();
+    wx.closeBluetoothAdapter({
+      success: (res) => {},
+    })
     this.setData({
-      devices:[]
+      devices:[],
+      disabled:false,
+      searchText:"开始扫描"
     })
   },
 
-  closeBluetoothAdapter() {
-    wx.closeBluetoothAdapter();
-    this._discoveryStarted = false;
-  },
+  // closeBluetoothAdapter() {
+  //   wx.closeBluetoothAdapter();
+  //   this._discoveryStarted = false;
+  // },
   // getDeviceId(e) {
   //   wx.setClipboardData({
   //     data: e.currentTarget.dataset.deviceid.deviceId,
@@ -172,22 +226,23 @@ Page({
     console.log(deviceID)
     wx.showLoading({
       title: '正在发送数据',
+      mask:true,
     })
     wx.createBLEConnection({
       deviceId: deviceID,
       success: function (e) {
         console.log(e.errMsg)
-        that.GetCharacteristics(deviceID);
+        that.WriteCharacteristics(deviceID);
       },
       fail: function (e) {
         console.log(e.errMsg+" "+e.errCode)
         if(e.errCode==-1){
-          that.GetCharacteristics(deviceID);
+          that.WriteCharacteristics(deviceID);
         }else{
           wx.hideLoading({
             success: (res) => {
               wx.showToast({
-                title: '发送失败',
+                title: '发送失败,请重新扫描设备',
                 icon: 'none'
               })
             },
@@ -196,11 +251,12 @@ Page({
       }
     })
   },
-  GetCharacteristics: function (deviceID) {
+  WriteCharacteristics: function (deviceID) {
     var that = this;
     wx.getBLEDeviceServices({
       deviceId: deviceID,
       success(e) {
+        console.log("获取到的设备的services")
         console.log(e.services);
         var serviceID = e.services[0].uuid;
 
@@ -209,6 +265,7 @@ Page({
           serviceId: serviceID,
           success(e) {
             var characteristicId = e.characteristics[0].uuid
+            console.log('获取到的设备特征值')
             console.log(e.characteristics)
             // wx.notifyBLECharacteristicValueChange({
             //   characteristicId: characteristicId,

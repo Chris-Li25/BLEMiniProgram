@@ -4,8 +4,8 @@
 <input class="inputArea" maxlength="12" model:value="{{UUID}}" type="number" placeholder="请输入十二位学号"></input>
 </view> -->
 <view class="inputAreaView">
-<text class="inputText">设备名：</text>
-<input class="inputArea" model:value="{{deviceName}}" placeholder="请输入设备名" maxlength="4"></input>
+	<text class="inputText">设备名：</text>
+	<input class="inputArea" model:value="{{deviceName}}" placeholder="请输入设备名" maxlength="4"></input>
 </view>
 <view class="btnArea">
 	<button class="functionBtn" bindtap="openBluetoothAdapter">开始广播</button>
@@ -17,8 +17,10 @@
 <view class="devicesNumberArea"><text>已接收 {{devicesNumber}} 个学生发送的数据：</text></view>
 <view class="device_list">
 	<scroll-view scroll-y scroll-with-animation>
-		<view wx:for="{{devicesInfo}}">
-			<text>{{item}}</text>
+		<view wx:for="{{devicesInfo}}" class="device_item">
+			<view class="devicesInfo">
+				<view class="studentId">学号：{{item}}</view>
+			</view>
 		</view>
 	</scroll-view>
 </view>

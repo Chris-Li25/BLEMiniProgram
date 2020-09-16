@@ -42,6 +42,7 @@ Page({
         }
         wx.showLoading({
           title: '正在开启广播',
+          mask:true
         })
           that.CreateServer();
       },
@@ -129,6 +130,7 @@ Page({
           if (!that.data.devicesInfo.includes(that.buf2string(res.value))) {
             that.data.devicesNumber++;
             that.data.devicesInfo.push(that.buf2string(res.value));
+            that.data.devicesInfo = that.quickSort(that.data.devicesInfo);
             that.setData({
               devicesNumber: that.data.devicesNumber,
               devicesInfo: that.data.devicesInfo
@@ -284,6 +286,27 @@ Page({
   isNumber_Alphabet: function (str) {
     var reg = /[^0-9a-zA-Z]+/;
     return reg.test(str)
+  },
+  quickSort(arr){
+    var that = this
+    //如果数组长度小于1，没必要排序，直接返回
+    if(arr.length<=1) return arr;
+    //pivot 基准索引，长度的一半
+    let pivotIndex = Math.floor(arr.length/2);//奇数项向下取整
+    //找到基准，把基准项从原数组删除
+    let pivot = arr.splice(pivotIndex,1)[0];
+    //定义左右数组
+    let left = [];
+    let right = [];
+    //把比基准小的放left,大的放right
+    arr.forEach(element => {
+        if(element<pivot){
+            left.push(element)
+        }else{
+            right.push(element)
+        }
+    });
+    return that.quickSort(left).concat([pivot],that.quickSort(right))
   },
 
 

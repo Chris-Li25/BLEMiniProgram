@@ -42,6 +42,7 @@ Page({
         // }
         wx.showLoading({
           title: '正在开启广播',
+          mask:true
         })
           that.CreateServer();
       },

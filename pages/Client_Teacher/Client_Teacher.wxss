@@ -2,6 +2,8 @@ page {
   color: #333;
 }
 
+
+
 .devices_summary {
   display: inline-block;
   margin-top: 10rpx;
@@ -81,3 +83,7 @@ page {
   justify-content: left;
 }
 
+.studentId{
+  font-family: "Times New Roman";
+  font-size: 18px;
+}

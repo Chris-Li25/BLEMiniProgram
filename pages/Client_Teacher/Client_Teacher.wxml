@@ -1,6 +1,6 @@
 <!--pages/testBluetooth/testBluetooth.wxml-->
 <view class="functionBtnArea">
-	<button class="functionBtn" bindtap="openBluetoothAdapter">开始扫描</button>
+	<button class="functionBtn" bindtap="openBluetoothAdapter" disabled="{{disabled}}">{{searchText}}</button>
 	<button class="functionBtn" bindtap="stopBluetoothDevicesDiscovery">停止扫描</button>
 </view>
 <!-- <view class="inputView">
@@ -11,12 +11,12 @@
 <view class="devices_summary">已发现 {{devices.length}} 个学生外围设备：</view>
 <scroll-view class="device_list" scroll-y scroll-with-animation>
 	<!-- <view wx:for="{{devices}}" wx:key="index" data-deviceid="{{item.deviceId}}" data-name="{{item.name || item.localName}}" class="device_item" hover-class="device_item_hover"> -->
-	<view wx:for="{{devices}}" wx:key="index" data-deviceid="{{item.deviceId}}" data-name="{{item.name || item.localName}}" class="device_item">
+	<view wx:for="{{studentIdAarry}}" wx:key="index" class="device_item">
 		<!-- <view data-deviceid="{{item.deviceId}}" data-name="{{item.name || item.localName}}" bindtap='createBLEConnection'> -->
-		<view class="devicesInfo" data-deviceid="{{item.deviceId}}" data-name="{{item.name || item.localName}}">
+		<view class="devicesInfo">
 			<!-- <view style="font-size: 16px; color: #333;">{{item.name}}</view> -->
 			<!-- <view style="font-size: 10px">设备ID: {{item.deviceId}}</view> -->
-			<view style="font-size: 15px">学号: {{item.advertisServiceUUIDs[0]}}</view>
+			<view class="studentId">学号: {{item}}</view>
 			<!-- <view style="font-size: 15px">
 				信号强度: {{item.RSSI}}
 			</view> -->

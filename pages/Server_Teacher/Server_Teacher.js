@@ -76,25 +76,37 @@ Page({
 
   CreateServer() {
     var that = this;
-    wx.createBLEPeripheralServer({
-      success: (result) => {
-        that.data.server = result.server
-        console.log(result.errMsg);
-        console.log("创建服务成功");   
-        setTimeout(that.addService.bind(that),2000);
-      },
-      fail(e) {
-        console.log(e.errMsg+e.errCode)
-        wx.hideLoading({
-          success: (res) => {
-            wx.showToast({
-              title: '开启失败,设备不支持或未知错误',
-              icon: 'none'
-            })
-          },
-        })
-      }
-    })
+    if(wx.createBLEPeripheralServer){
+      wx.createBLEPeripheralServer({
+        success: (result) => {
+          that.data.server = result.server
+          console.log(result.errMsg);
+          console.log("创建服务成功");   
+          setTimeout(that.addService.bind(that),2000);
+        },
+        fail(e) {
+          console.log(e.errMsg+e.errCode)
+          wx.hideLoading({
+            success: (res) => {
+              wx.showToast({
+                title: '开启失败,设备不支持或未知错误',
+                icon: 'none'
+              })
+            },
+          })
+        }
+      })
+    }else{
+      wx.hideLoading({
+        success: (res) => {
+          wx.showModal({
+            title: '提示',
+            content: '当前微信版本过低，无法使用该功能，请升级到最新微信版本后重试。'
+          })
+        },
+      })
+    }
+    
   },
 
   addService(){

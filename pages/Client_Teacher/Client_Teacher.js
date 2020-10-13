@@ -3,8 +3,8 @@ import {wxp} from '../../utils/wxp'
 Page({
   data: {
     unsendDevicesIDArr: [],
-    serviceUUID: '0000aaa0-0000-1000-8000-00805f9b34fb',
-    characteristicsUUID: '0000aaa1-0000-1000-8000-00805f9b34fb',
+    serviceUUID: '0000AAA0-0000-1000-8000-00805F9B34FB',
+    characteristicsUUID: '0000AAA1-0000-1000-8000-00805F9B34FB',
     searchText: '开始扫描',
     disabled: false,
     sendMsg: false,
@@ -524,7 +524,7 @@ Page({
       searchText: '开始扫描',
       disabled: false,
       sendMsg: false
-      
+
     })
   },
 

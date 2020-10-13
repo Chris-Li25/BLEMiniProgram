@@ -20,7 +20,7 @@
 }
 
 .device_list {
-  height: 700rpx;
+  height: 750rpx;
   margin: 20rpx 20rpx;
   border: 1px solid #EEE;
   border-radius: 5rpx;

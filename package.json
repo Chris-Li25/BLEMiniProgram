@@ -1,0 +1,24 @@
+{
+  "name": "BLE",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "dependencies": {
+    "miniprogram-api-promise": "^1.0.4"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Chris-Li25/BLEMiniProgram.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Chris-Li25/BLEMiniProgram/issues"
+  },
+  "homepage": "https://github.com/Chris-Li25/BLEMiniProgram#readme"
+}

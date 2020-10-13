@@ -6,11 +6,10 @@ Page({
    */
   data: {
     tip:"广播未开启",
-    devicesNumber: 0,
-    devicesInfo: [],
     UUID: "",
-    deviceName: "BLEQD",
+    deviceName: "BLE",
     server: null,
+    feebackMsg:"",
 
   },
   openBluetoothAdapter: function (e) {
@@ -83,13 +82,14 @@ Page({
           console.log(result.errMsg);
           console.log("创建服务成功");
           setTimeout(that.addService.bind(that),2000);
+          // that.startAdvertising();
         },
         fail(e) {
           console.log(e.errMsg)
           wx.hideLoading({
             success: (res) => {
               wx.showToast({
-                title: '开启失败，设备不支持或未知错误',
+                title: '开启失败，设备不支持或未知错误 '+e.errMsg,
                 icon: 'none'
               })
             },
@@ -138,15 +138,9 @@ addService:function(){
       console.log(e.errMsg)
       console.log("添加Service成功")
       that.data.server.onCharacteristicWriteRequest(function callback(res) {
-        if (!that.data.devicesInfo.includes(that.buf2string(res.value))) {
-          that.data.devicesNumber++;
-          that.data.devicesInfo.push(that.buf2string(res.value));
-          that.setData({
-            devicesNumber: that.data.devicesNumber,
-            devicesInfo: that.data.devicesInfo
-          })
-        }
-
+        that.setData({
+          feebackMsg: that.buf2string(res.value),
+        })
         that.data.server.writeCharacteristicValue({
           serviceId: res.serviceId,
           characteristicId: res.characteristicId,
@@ -159,7 +153,7 @@ addService:function(){
         that.data.server.writeCharacteristicValue({
           serviceId: res.serviceId,
           characteristicId: res.characteristicId,
-          value: that.string2buffer("2020"),
+          value: that.string2buffer("201711621313"),
           needNotify: true,
           callbackId: res.callbackId
         })
@@ -170,7 +164,7 @@ addService:function(){
       wx.hideLoading({
         success: (res) => {
           wx.showToast({
-            title: '开启广播失败，请重试',
+            title: '开启广播失败，添加服务失败，请重试',
             icon: 'none'
           })
         },
@@ -231,9 +225,20 @@ startAdvertising(){
       console.log(errMsg)
       if (errMsg.errCode == 10000) {
         wx.showToast({
-          title: '用户设备连接了其他BLE设备，请重启蓝牙后重试',
+          title: '用户设备连接了其他BLE设备,请重启蓝牙后重试',
           icon: 'none'
         })
+      }else{
+        wx.hideLoading({
+          success: (res) => {
+            wx.showModal({
+              content:errMsg.errMsg+'请重试',
+              title: '开启广播失败',
+              showCancel:false,
+            })
+          },
+        })
+        
       }
     }
   )
@@ -266,7 +271,8 @@ startAdvertising(){
         })
         that.setData({
           server: null,
-          tip:"广播未开启"
+          tip:"广播未开启",
+          feebackMsg:''
         })
     }else{
       wx.showToast({

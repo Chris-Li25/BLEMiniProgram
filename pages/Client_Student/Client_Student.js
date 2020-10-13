@@ -1,15 +1,18 @@
 // pages/testBluetooth/testBluetooth.js
 Page({
   data: {
-    searchText:"开始扫描",
-    disabled:false,
-    UUID:"000020200913",
+    serviceUUID: "0000aaa0-0000-1000-8000-00805f9b34fb",
+    characteristicsUUID: "0000aaa1-0000-1000-8000-00805f9b34fb",
+    searchText: "开始扫描",
+    disabled: false,
+    UUID: "000020200913",
     devices: [],
-    deviceID:"",
+    deviceID: "",
     mac: "",
-    writeValue:"",
+    writeValue: "",
   },
-  onUnload:function(){
+
+  onUnload: function () {
     this.stopBluetoothDevicesDiscovery();
     wx.closeBluetoothAdapter({
       success: (res) => {
@@ -26,12 +29,13 @@ Page({
     //   }
     // })
     this.setData({
-      disabled:false,
-      searchText:'开始扫描',
-      devices:[]
+      disabled: false,
+      searchText: '开始扫描',
+      devices: []
     })
   },
-  onHide:function(){
+
+  onHide: function () {
     this.stopBluetoothDevicesDiscovery();
     // wx.closeBluetoothAdapter({
     //   success: (res) => {
@@ -48,8 +52,8 @@ Page({
     //   }
     // })
     this.setData({
-      disabled:false,
-      searchText:'开始扫描'
+      disabled: false,
+      searchText: '开始扫描'
     })
   },
 
@@ -62,10 +66,10 @@ Page({
     } catch (e) {
       // Do something when catch error
     }
-    if(!that.data.location){
+    if (!that.data.location) {
       wx.showToast({
         title: '需开启定位服务才能搜索到设备',
-        icon:'none'
+        icon: 'none'
       })
       return
     }
@@ -107,11 +111,11 @@ Page({
     var that = this;
     that.data.devices = [];
     wx.startBluetoothDevicesDiscovery({
-      allowDuplicatesKey:false,
+      allowDuplicatesKey: false,
       success: function (res) {
         that.setData({
-          disabled:true,
-          searchText:"扫描中"
+          disabled: true,
+          searchText: "扫描中"
         })
         that.onBluetoothDeviceFound();
       },
@@ -120,18 +124,18 @@ Page({
       },
     });
   },
-  onBluetoothDeviceFound(){
+  onBluetoothDeviceFound() {
     var _this = this;
-    var devices=[];
+    var devices = [];
     wx.onBluetoothDeviceFound((result) => {
-      if(result.devices){
+      if (result.devices) {
         if (result.devices.length > 0) {
           console.log("扫描到的全部设备")
           console.log(result.devices)
-          for(var i = 0; i<result.devices.length; i++ ){
-            if(result.devices[i].advertisServiceUUIDs){
-              if(result.devices[i].advertisServiceUUIDs.length>0){
-                if(result.devices[i].advertisServiceUUIDs[0].includes(_this.data.UUID)){
+          for (var i = 0; i < result.devices.length; i++) {
+            if (result.devices[i].advertisServiceUUIDs) {
+              if (result.devices[i].advertisServiceUUIDs.length > 0) {
+                if (result.devices[i].advertisServiceUUIDs[0].includes(_this.data.UUID)) {
                   devices.push(result.devices[i])
                 }
               }
@@ -174,7 +178,7 @@ Page({
   //           });
   //         } else {}
   //       }
-       
+
   //     },
   //     fail(res) {
   //       console.log(res, "获取蓝牙设备列表失败=====");
@@ -188,9 +192,9 @@ Page({
       success: (res) => {},
     })
     this.setData({
-      devices:[],
-      disabled:false,
-      searchText:"开始扫描"
+      devices: [],
+      disabled: false,
+      searchText: "开始扫描"
     })
   },
 
@@ -213,20 +217,20 @@ Page({
   createBLEConnection: function (ele) {
     var deviceID = ele.currentTarget.dataset.deviceid
     var that = this;
-    if(that.data.writeValue.length<12){
+    if (that.data.writeValue.length < 12) {
       wx.showToast({
         title: '请输入十二位学号',
-        icon:'none'
+        icon: 'none'
       })
       return
     }
     that.setData({
-      deviceID:ele.currentTarget.dataset.deviceid
+      deviceID: ele.currentTarget.dataset.deviceid
     })
     console.log(deviceID)
     wx.showLoading({
       title: '正在发送数据',
-      mask:true,
+      mask: true,
     })
     wx.createBLEConnection({
       deviceId: deviceID,
@@ -235,14 +239,14 @@ Page({
         that.WriteCharacteristics(deviceID);
       },
       fail: function (e) {
-        console.log(e.errMsg+" "+e.errCode)
-        if(e.errCode==-1){
+        console.log(e.errMsg + " " + e.errCode)
+        if (e.errCode == -1) {
           that.WriteCharacteristics(deviceID);
-        }else{
+        } else {
           wx.hideLoading({
             success: (res) => {
               wx.showToast({
-                title: '发送失败,请重新扫描设备',
+                title: '连接失败,设备离线或其他错误,请重新扫描设备',
                 icon: 'none'
               })
             },
@@ -253,77 +257,253 @@ Page({
   },
   WriteCharacteristics: function (deviceID) {
     var that = this;
+
+    // var deviceID = ele.currentTarget.dataset.deviceid
+    // if(that.data.writeValue.length<12){
+    //   wx.showToast({
+    //     title: '请输入十二位学号',
+    //     icon:'none'
+    //   })
+    //   return
+    // }
+    // console.log(deviceID)
+    // wx.showLoading({
+    //   title: '正在发送数据',
+    //   mask:true,
+    // })
+    // wx.createBLEConnection({
+    //   deviceId: deviceID,
+    //   success: function (e) {
+    //     console.log(e.errMsg)
+    //     wx.writeBLECharacteristicValue({
+    //       deviceId: deviceID,
+    //       serviceId: that.data.serviceUUID,
+    //       characteristicId: that.data.characteristicsUUID,
+    //       value: that.string2buffer(that.data.writeValue),
+    //       success(e) {
+    //         console.log(e.errMsg)
+    //         wx.hideLoading({
+    //           success: (res) => {
+    //             wx.showToast({
+    //               title: '签到成功',
+    //               icon:'none'
+    //             })
+    //           },
+    //         })
+
+    //         wx.closeBLEConnection({
+    //           deviceId: deviceID,
+    //           success(e){
+    //             console.log(e.errMsg+"断开连接")
+    //           },
+    //           fail(e){
+    //             console.log(e.errMsg+"断连失败")
+    //           }
+    //         })
+    //       },
+    //       fail(e) {
+    //         wx.hideLoading({
+    //           success: (res) => {
+    //             wx.showToast({
+    //               title: '写入数据失败，请重试',
+    //               icon: 'none'
+    //             })
+    //           },
+    //         })
+
+    //         console.log(e.errMsg)
+    //       }
+    //     })
+    //   },
+    //   fail: function (e) {
+    //     console.log(e.errMsg+" "+e.errCode)
+    //     if(e.errCode==-1){
+    //       wx.writeBLECharacteristicValue({
+    //         deviceId: deviceID,
+    //         serviceId: that.data.serviceUUID,
+    //         characteristicId: that.data.characteristicsUUID,
+    //         value: that.string2buffer(that.data.writeValue),
+    //         success(e) {
+    //           console.log(e.errMsg)
+    //           wx.hideLoading({
+    //             success: (res) => {
+    //               wx.showToast({
+    //                 title: '签到成功',
+    //                 icon:'none'
+    //               })
+    //             },
+    //           })
+
+    //           wx.closeBLEConnection({
+    //             deviceId: deviceID,
+    //             success(e){
+    //               console.log(e.errMsg+"断开连接")
+    //             },
+    //             fail(e){
+    //               console.log(e.errMsg+"断连失败")
+    //             }
+    //           })
+    //         },
+    //         fail(e) {
+    //           wx.hideLoading({
+    //             success: (res) => {
+    //               wx.showToast({
+    //                 title: '写入数据失败，请重试',
+    //                 icon: 'none'
+    //               })
+    //             },
+    //           })
+
+    //           console.log(e.errMsg)
+    //         }
+    //       })
+    //     }else{
+    //       wx.hideLoading({
+    //         success: (res) => {
+    //           wx.showToast({
+    //             title: '连接失败,设备离线或其他错误,请重新扫描设备',
+    //             icon: 'none'
+    //           })
+    //         },
+    //       })
+    //     }
+    //   }
+    // })
+
+    // wx.writeBLECharacteristicValue({
+    //   deviceId: deviceID,
+    //   serviceId: that.data.serviceUUID,
+    //   characteristicId: that.data.characteristicsUUID,
+    //   value: that.string2buffer(that.data.writeValue),
+    //   success(e) {
+    //     console.log(e.errMsg)
+    //     wx.hideLoading({
+    //       success: (res) => {
+    //         wx.showToast({
+    //           title: '签到成功',
+    //           icon:'none'
+    //         })
+    //       },
+    //     })
+
+    //     wx.closeBLEConnection({
+    //       deviceId: deviceID,
+    //       success(e){
+    //         console.log(e.errMsg+"断开连接")
+    //       },
+    //       fail(e){
+    //         console.log(e.errMsg+"断连失败")
+    //       }
+    //     })
+    //   },
+    //   fail(e) {
+    //     wx.hideLoading({
+    //       success: (res) => {
+    //         wx.showToast({
+    //           title: '写入数据失败，请重试',
+    //           icon: 'none'
+    //         })
+    //       },
+    //     })
+
+    //     console.log(e.errMsg)
+    //   }
+    // })
+
     wx.getBLEDeviceServices({
       deviceId: deviceID,
       success(e) {
         console.log("获取到的设备的services")
         console.log(e.services);
-        var serviceID = e.services[0].uuid;
-
+        var serviceID;
+        if (e.services) {
+          for (var i = 0; i < e.services.length; i++) {
+            if (e.services[i].uuid == that.data.serviceUUID.toUpperCase())
+              serviceID = e.services[i].uuid
+            console.log('发送的service')
+            console.log(e.services[i].uuid)
+          }
+        }
         wx.getBLEDeviceCharacteristics({
           deviceId: deviceID,
           serviceId: serviceID,
           success(e) {
-            var characteristicId = e.characteristics[0].uuid
-            console.log('获取到的设备特征值')
+            var characteristicId
+            console.log('获取到的特征值')
             console.log(e.characteristics)
+            if (e.characteristics) {
+              for (var j = 0; j < e.characteristics.length; j++) {
+                if (e.characteristics[j].uuid == that.data.characteristicsUUID.toUpperCase())
+                  characteristicId = e.characteristics[j].uuid
+                console.log('发送的设备特征值')
+                console.log(e.characteristics[j].uuid)
+              }
+            }
             // wx.notifyBLECharacteristicValueChange({
             //   characteristicId: characteristicId,
             //   deviceId: deviceID,
             //   serviceId: serviceID,
             //   state: true,
-              // success(e) {
-              //   console.log(e.errMsg)
-                wx.onBLECharacteristicValueChange((result) => {
-                  console.log(result)
-                  console.log(that.buf2string(result.value))
-                })
-                wx.writeBLECharacteristicValue({
-                  characteristicId: characteristicId,
-                  deviceId: deviceID,
-                  serviceId: serviceID,
-                  value: that.string2buffer(that.data.writeValue),
-                  success(e) {
-                    console.log(e.errMsg)
-                    wx.hideLoading({
-                      success: (res) => {
-                        wx.showToast({
-                          title: '签到成功',
-                          icon:'none'
-                        })
-                      },
-                    })
-                    
-                    wx.closeBLEConnection({
-                      deviceId: deviceID,
-                      success(e){
-                        console.log(e.errMsg+"断开连接")
-                      },
-                      fail(e){
-                        console.log(e.errMsg+"断连失败")
-                      }
+            // success(e) {
+            //   console.log(e.errMsg)
+            wx.onBLECharacteristicValueChange((result) => {
+              console.log(result)
+              console.log(that.buf2string(result.value))
+            })
+            wx.writeBLECharacteristicValue({
+              deviceId: deviceID,
+              serviceId: serviceID,
+              characteristicId: characteristicId,
+              value: that.string2buffer(that.data.writeValue),
+              success(e) {
+                console.log(e.errMsg)
+                wx.hideLoading({
+                  success: (res) => {
+                    wx.showToast({
+                      title: '签到成功',
+                      icon: 'none'
                     })
                   },
+                })
+
+                wx.closeBLEConnection({
+                  deviceId: deviceID,
+                  success(e) {
+                    console.log(e.errMsg + "断开连接")
+                  },
                   fail(e) {
-                    wx.hideLoading({
-                      success: (res) => {
-                        wx.showToast({
-                          title: '发送失败',
-                          icon: 'none'
-                        })
-                      },
-                    })
-                    
-                    console.log(e.errMsg)
+                    console.log(e.errMsg + "断连失败")
                   }
                 })
-              // },
+              },
+              fail(e) {
+                wx.hideLoading({
+                  success: (res) => {
+                    wx.showToast({
+                      title: '写入数据失败，请重试',
+                      icon: 'none'
+                    })
+                  },
+                })
+
+                console.log(e.errMsg)
+              }
+            })
+            // },
             //   fail(e) {
             //     console.log(e.errMsg)
             //   }
             // })
           },
           fail(e) {
+            wx.hideLoading({
+              success: (res) => {
+                wx.showToast({
+                  title: '获取特征值失败，请重试',
+                  icon: 'none'
+                })
+              },
+            })
             console.log(e.errMsg)
           }
         })
@@ -332,17 +512,17 @@ Page({
         wx.hideLoading({
           success: (res) => {
             wx.showToast({
-              title: '发送失败',
+              title: '获取Services失败，请重试',
               icon: 'none'
             })
           },
         })
-        
+
         console.log(e.errMsg)
       }
     })
   },
-  
+
   buf2string: function (buffer) {
     var arr = Array.prototype.map.call(new Uint8Array(buffer), x => x)
     var str = ''

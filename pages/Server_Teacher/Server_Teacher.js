@@ -1,18 +1,14 @@
 // pages/Server/Server.js
 Page({
-
-  /**
-   * 页面的初始数据
-   */
   data: {
-    tip:"广播未开启",
+    tip: "广播未开启",
     devicesNumber: 0,
     devicesInfo: [],
     UUID: "000020200913",
     deviceName: "",
     server: null,
-
   },
+
   openBluetoothAdapter: function (e) {
     var that = this;
     wx.openBluetoothAdapter({
@@ -25,26 +21,24 @@ Page({
             icon: 'none'
           })
           return
-        } 
-        // else if (that.data.UUID.length < 12) {
-        //   wx.showToast({
-        //     title: '请输入12位学号',
-        //     icon: 'none'
-        //   })
-        //   return
-        // } 
-        else if (that.data.deviceName.length == 0||that.isNumber_Alphabet(that.data.deviceName)){
+        } else if (that.data.UUID.length < 12) {
+          wx.showToast({
+            title: '请输入12位学号',
+            icon: 'none'
+          })
+          return
+        } else if (that.data.deviceName.length == 0 || that.isNumber_Alphabet(that.data.deviceName)) {
           wx.showToast({
             title: '设备名需为数字或字母',
-            icon:'none'
+            icon: 'none'
           })
           return
         }
         wx.showLoading({
           title: '正在开启广播',
-          mask:true
+          mask: true
         })
-          that.CreateServer();
+        that.CreateServer();
       },
       fail: function (err) {
         console.log(err.state)
@@ -57,6 +51,7 @@ Page({
       },
     });
   },
+
   // getBluetoothAdapterState() {
   //   var that = this;
   //   that.toastTitle = "检查蓝牙状态";
@@ -76,27 +71,27 @@ Page({
 
   CreateServer() {
     var that = this;
-    if(wx.createBLEPeripheralServer){
+    if (wx.createBLEPeripheralServer) {
       wx.createBLEPeripheralServer({
         success: (result) => {
           that.data.server = result.server
           console.log(result.errMsg);
-          console.log("创建服务成功");   
-          setTimeout(that.addService.bind(that),2000);
+          console.log("创建服务成功");
+          setTimeout(that.addService.bind(that), 2000);
         },
         fail(e) {
-          console.log(e.errMsg+e.errCode)
+          console.log(e.errMsg + e.errCode)
           wx.hideLoading({
             success: (res) => {
               wx.showToast({
-                title: '开启失败,设备不支持或未知错误',
+                title: '开启失败,CS错误或设备不支持',
                 icon: 'none'
               })
             },
           })
         }
       })
-    }else{
+    } else {
       wx.hideLoading({
         success: (res) => {
           wx.showModal({
@@ -106,10 +101,10 @@ Page({
         },
       })
     }
-    
+
   },
 
-  addService(){
+  addService() {
     var that = this;
     that.data.server.addService({
       service: {
@@ -138,41 +133,14 @@ Page({
       success(e) {
         console.log(e.errMsg)
         console.log("添加Service成功")
-        that.data.server.onCharacteristicWriteRequest(function callback(res) {
-          if (!that.data.devicesInfo.includes(that.buf2string(res.value))) {
-            that.data.devicesNumber++;
-            that.data.devicesInfo.push(that.buf2string(res.value));
-            that.data.devicesInfo = that.quickSort(that.data.devicesInfo);
-            that.setData({
-              devicesNumber: that.data.devicesNumber,
-              devicesInfo: that.data.devicesInfo
-            })
-          }
-
-          that.data.server.writeCharacteristicValue({
-            serviceId: res.serviceId,
-            characteristicId: res.characteristicId,
-            value: res.value,
-            needNotify: true,
-            callbackId: res.callbackId
-          })
-        })
-        that.data.server.onCharacteristicReadRequest(function callback(res) {
-          that.data.server.writeCharacteristicValue({
-            serviceId: res.serviceId,
-            characteristicId: res.characteristicId,
-            value: that.string2buffer("2020"),
-            needNotify: true,
-            callbackId: res.callbackId
-          })
-        })
+        that.setOnRequest();
         that.startAdvertising();
       },
       fail(e) {
         wx.hideLoading({
           success: (res) => {
             wx.showToast({
-              title: '开启广播失败，请重试',
+              title: '开启广播失败,aS错误,请重试',
               icon: 'none'
             })
           },
@@ -195,7 +163,45 @@ Page({
       }
     })
   },
-  startAdvertising(){
+
+  setOnRequest() {
+    var that = this;
+    console.log("设置监听读写");
+    if (that.data.server) {
+      that.data.server.onCharacteristicWriteRequest(function callback(res) {
+        if (!that.data.devicesInfo.includes(that.buf2string(res.value))) {
+          console.log('写入请求监听')
+          console.log("写入的数据:" + that.buf2string(res.value))
+          that.data.devicesNumber++;
+          that.data.devicesInfo.push(that.buf2string(res.value));
+          that.data.devicesInfo = that.quickSort(that.data.devicesInfo);
+          that.setData({
+            devicesNumber: that.data.devicesNumber,
+            devicesInfo: that.data.devicesInfo
+          })
+        }
+        that.data.server.writeCharacteristicValue({
+          serviceId: res.serviceId,
+          characteristicId: res.characteristicId,
+          value: res.value,
+          needNotify: true,
+          callbackId: res.callbackId
+        })
+      })
+      that.data.server.onCharacteristicReadRequest(function callback(res) {
+        console.log('读取请求监听')
+        that.data.server.writeCharacteristicValue({
+          serviceId: res.serviceId,
+          characteristicId: res.characteristicId,
+          value: that.string2buffer("2020"),
+          needNotify: true,
+          callbackId: res.callbackId
+        })
+      })
+    }
+  },
+  
+  startAdvertising() {
     var that = this;
     var promise = that.data.server.startAdvertising({
       advertiseRequest: {
@@ -211,7 +217,7 @@ Page({
             icon: 'none'
           }),
           that.setData({
-            tip:"广播已开启"
+            tip: "广播已开启"
           })
       },
       (errMsg) => {
@@ -230,11 +236,17 @@ Page({
             title: '用户设备连接了其他BLE设备，请重启蓝牙后重试',
             icon: 'none'
           })
-        }
+        } else(
+          wx.showToast({
+            title: '开启广播失败,sA错误',
+            icon: 'none'
+          })
+        )
       }
     )
     console.log(promise)
   },
+
   stopAdvertising() {
     var that = this;
     if (that.data.server) {
@@ -256,9 +268,9 @@ Page({
         }),
         that.setData({
           server: null,
-          tip:"广播未开启"
+          tip: "广播未开启"
         })
-    }else{
+    } else {
       wx.showToast({
         title: '广播未开启',
         icon: 'none'
@@ -295,30 +307,32 @@ Page({
     var reg = /[^0-9a-fA-F]+/;
     return reg.test(str)
   },
+
   isNumber_Alphabet: function (str) {
     var reg = /[^0-9a-zA-Z]+/;
     return reg.test(str)
   },
-  quickSort(arr){
+
+  quickSort(arr) {
     var that = this
     //如果数组长度小于1，没必要排序，直接返回
-    if(arr.length<=1) return arr;
+    if (arr.length <= 1) return arr;
     //pivot 基准索引，长度的一半
-    let pivotIndex = Math.floor(arr.length/2);//奇数项向下取整
+    let pivotIndex = Math.floor(arr.length / 2); //奇数项向下取整
     //找到基准，把基准项从原数组删除
-    let pivot = arr.splice(pivotIndex,1)[0];
+    let pivot = arr.splice(pivotIndex, 1)[0];
     //定义左右数组
     let left = [];
     let right = [];
     //把比基准小的放left,大的放right
     arr.forEach(element => {
-        if(element<pivot){
-            left.push(element)
-        }else{
-            right.push(element)
-        }
+      if (element < pivot) {
+        left.push(element)
+      } else {
+        right.push(element)
+      }
     });
-    return that.quickSort(left).concat([pivot],that.quickSort(right))
+    return that.quickSort(left).concat([pivot], that.quickSort(right))
   },
 
 
@@ -341,7 +355,6 @@ Page({
    * 生命周期函数--监听页面初次渲染完成
    */
   onReady: function () {
-
   },
 
   /**
@@ -355,14 +368,13 @@ Page({
    * 生命周期函数--监听页面隐藏
    */
   onHide: function () {
-
   },
 
   /**
    * 生命周期函数--监听页面卸载
    */
   onUnload: function () {
-    if(this.data.server){
+    if (this.data.server) {
       this.data.server.stopAdvertising({
         success(e) {
           console.log("关闭成功")
@@ -395,13 +407,11 @@ Page({
    * 页面上拉触底事件的处理函数
    */
   onReachBottom: function () {
-
   },
 
   /**
    * 用户点击右上角分享
    */
   onShareAppMessage: function () {
-
   }
 })

@@ -15,12 +15,10 @@
 {{tip}}
 </text>
 <view class="devicesNumberArea"><text>已接收 {{devicesNumber}} 个学生发送的数据：</text></view>
-<view class="device_list">
-	<scroll-view scroll-y scroll-with-animation>
+<scroll-view class="device_list" scroll-y scroll-with-animation>
 		<view wx:for="{{devicesInfo}}" class="device_item">
 			<view class="devicesInfo">
 				<view class="studentId">学号：{{item}}</view>
 			</view>
 		</view>
-	</scroll-view>
-</view>
+</scroll-view>

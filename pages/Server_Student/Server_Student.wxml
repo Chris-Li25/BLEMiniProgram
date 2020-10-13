@@ -17,6 +17,10 @@
 <text class="tip">
 退出该页面后广播将会关闭，需要重新开启
 </text>
+
+<text class="tip">
+接收的数据：{{feebackMsg}}
+</text>
 <!-- <view class="devicesNumberArea"><text>已接收 {{devicesNumber}} 个外围设备发送的数据：</text></view>
 <view class="device_list">
 	<scroll-view scroll-y scroll-with-animation>
